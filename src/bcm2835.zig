@@ -42,7 +42,8 @@ pub const Bcm2385GpioMemoryMapper = struct {
     devgpiomem: []align(std.mem.page_size) u8,
 
     pub fn init() !Self {
-        const devgpiomem = try std.fs.openFileAbsolute("/dev/gpiomem", std.fs.File.OpenFlags{ .read = true, .write = true });
+        const openflags = std.fs.File.OpenFlags{ .mode = std.fs.File.OpenMode.read_write };
+        const devgpiomem = try std.fs.openFileAbsolute("/dev/gpiomem", openflags);
         defer devgpiomem.close();
 
         return Self{ .devgpiomem = try std.os.mmap(null, BoardInfo.gpio_registers.len, std.os.PROT.READ | std.os.PROT.WRITE, std.os.MAP.SHARED, devgpiomem.handle, 0), .memory_mapper = .{ .map_fn = Self.memoryMap } };

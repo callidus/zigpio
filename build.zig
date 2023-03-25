@@ -9,11 +9,15 @@ pub fn build(b: *std.build.Builder) void {
 
     // Standard release options allow the person running `zig build` to select
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
-    const mode = b.standardReleaseOptions();
+    const optimize = b.standardOptimizeOption(.{});
 
-    const exe = b.addExecutable("zigpio", "src/main.zig");
-    exe.setTarget(target);
-    exe.setBuildMode(mode);
+    const exe = b.addExecutable(.{
+        .name = "zigpio",
+        .root_source_file = .{ .path = "src/main.zig" },
+        .target = target,
+        .optimize = optimize,
+    });
+
     exe.install();
 
     const run_cmd = exe.run();
@@ -26,7 +30,12 @@ pub fn build(b: *std.build.Builder) void {
     run_step.dependOn(&run_cmd.step);
 
     // test suite
-    const test_suite = b.addTest("src/test-suite.zig");
+    const test_suite = b.addTest(.{
+        .root_source_file = .{ .path = "src/test-suite.zig" },
+        .target = target,
+        .optimize = optimize,
+    });
+
     const tests_suite_step = b.step("test", "test suite for ziggy-orchard");
     tests_suite_step.dependOn(&test_suite.step);
 }
